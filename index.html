@@ -83,6 +83,7 @@
               var input = $(".draft");
               myChat.send(Chat.username + ": " + input.val());
               input.val("");
+              e.preventDefault();
             });
           },
 
