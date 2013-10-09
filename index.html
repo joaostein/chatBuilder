@@ -50,8 +50,9 @@
             
             if (messageNode.length > 0) {
               messageNode.each(function (i) {
-                if ($(this).text() !== messages[i]) {
-                  $(this).text(messages[i]);
+                var $this = $(this);
+                if ($this.text() !== messages[i]) {
+                  $this.text(messages[i]);
                 }
               });
             } else {
@@ -62,7 +63,7 @@
               }
             }
           }
-          
+
         };
 
         var myChat = {
