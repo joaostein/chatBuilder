@@ -6,8 +6,6 @@
   </head>
   <body>
     <script>
-      Chat.guide.start();
-      
       delete Chat.display;
       delete Chat.fetch;
       delete Chat.send;
@@ -16,7 +14,6 @@
 
         var coreChat = {
 
-          state: "off",
           fetch: function (fn) {
             $.ajax({
               url: "https://api.parse.com/1/classes/chats",
@@ -41,58 +38,62 @@
               url: "https://api.parse.com/1/classes/chats",
               data: data,
               type: "POST"
-            }).done(function(data) {
-              
             });
           },
 
-          display: function (message) {
-            $("<li></li>", {
-              text: message
-            }).appendTo($(".messages"));
-
-            if (this.state === "on") {
-              $(".messages").find("li").first().remove();
+          display: function (messages) {
+            
+            // http://jsperf.com/update-only-text-vs-remove-dom
+            
+            var messagesWrapper = $(".messages"),
+                messageNode = messagesWrapper.find("li");
+            
+            if (messageNode.length > 0) {
+              messageNode.each(function (i) {
+                if ($(this).text() !== messages[i]) {
+                  $(this).text(messages[i]);
+                }
+              });
+            } else {
+              for (var i = 0; i < 10; i++) {
+                $("<li></li>", {
+                  text: messages[i]
+                }).appendTo(messagesWrapper);
+              }
             }
-          },
+          }
+          
         };
 
         var myChat = {
 
           init: function () {
             this.fetchInitialData();
-            this.sendMessageButton();
+            this.bindSendEvent();
             this.refresh();
           },
 
           fetchInitialData: function () {
-            this.fetch(function (messages) {
-              for (var i = 0, len = messages.length; i < len; i++) {
-                myChat.display(messages[i]);
-              }
+            myChat.updateMessages();
+          },
 
-              myChat.state = "on";
-              myChat.oldMessageArray = messages;
+          bindSendEvent: function () {
+            $(".send").on("click", function (e) {
+              var input = $(".draft");
+              myChat.send(Chat.username + ": " + input.val());
+              input.val("");
             });
           },
 
           refresh: function () {
             setInterval(function () {
-              this.fetch(function (messages) {
-                $(".messages li").each(function (i) {
-                  if ($(this).text() !== messages[i]) {
-                    $(this).text(messages[i]);
-                  }
-                });
-              });
+              myChat.updateMessages();
             }, 3000);
           },
 
-          sendMessageButton: function () {
-            $(".send").on("click", function (e) {
-              var input = $(".draft");
-              myChat.send(Chat.username + ": " + input.val());
-              input.val("");
+          updateMessages: function () {
+            this.fetch(function (messages) {
+              myChat.display(messages);
             });
           }
 
