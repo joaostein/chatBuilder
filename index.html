@@ -45,23 +45,15 @@
             
             // http://jsperf.com/update-only-text-vs-remove-dom
             
-            var messagesWrapper = $(".messages"),
-                messageNode = messagesWrapper.find("li");
-            
-            if (messageNode.length > 0) {
-              messageNode.each(function (i) {
-                var $this = $(this);
-                if ($this.text() !== messages[i]) {
-                  $this.text(messages[i]);
-                }
-              });
-            } else {
-              for (var i = 0; i < 10; i++) {
-                $("<li></li>", {
-                  text: messages[i]
-                }).appendTo(messagesWrapper);
+            var messageNode = $(".messages").find("li");
+
+            messageNode.each(function (i) {
+              var $this = $(this);
+              if ($this.text() !== messages[i]) {
+                $this.text(messages[i]);
               }
-            }
+            });
+
           }
 
         };
@@ -75,6 +67,11 @@
           },
 
           fetchInitialData: function () {
+            var messagesWrapper = $(".messages");
+            for (var i = 0; i < 10; i++) {
+              $("<li></li>").appendTo(messagesWrapper);
+            }
+
             myChat.updateMessages();
           },
 
